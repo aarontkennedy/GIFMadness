@@ -1,17 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>GIFTastic!</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+        crossorigin="anonymous">
+    <link href="styles/style.css">
+
 </head>
+
 <body>
-    
-    <div id="pictures"></div>
 
-    <script   src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
+    <header class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <h1>GIFTastic!</h1>
+            </div>
+        </div>
+    </header>
 
-    <script src="app.js"></script>
+    <section class="container-fluid">
+        <div class="row">
+            <div id="tags" class="col">
+
+            </div>
+        </div>
+        <div class="row">
+            <div id="pictures" class="col">
+
+            </div>
+            <div id="customTags" class="col">
+                <form action="">
+                    <input type="text">
+                    <button></button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <p>Made by Aaron Kennedy using GIPHY</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
+        crossorigin="anonymous"></script>
+
+    <script src="javascript/app.js"></script>
 </body>
+
 </html>
