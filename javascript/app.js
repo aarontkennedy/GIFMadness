@@ -1,41 +1,110 @@
-const tags = [
-    "Macho Man",
-    "Ultimate Warrior",
-    "Mil Muertes",
-    "Pentagon Dark",
-    "Joey Ryan",
-    'Marty "The Moth" Martinez',
-    "Bray Wyatt",
-    "Dalton Castle",
-    "Alexa Bliss",
-    "Rhonda Rousey",
-    "Hulk Hogan",
-    "John Cena",
-    "Adam Cole",
-    "Catrina",
-    "Andre the Giant",
-    "Stone Cold Steve Austin"];
+$(document).ready(function () {
 
+    function GIPHYResponse() {
+        this.giphyData = null;
+        this.pictures = $("#pictures");
+        this.stillStr = "downsized_still";
+        this.animatedStr = "downsized";
 
-for (let i = 0; i < tags.length; i++) {
-    $("<button>").text(tags[i]+" ").addClass("btn").addClass("btn-default"
-    ).addClass("btn-primary").appendTo($("#tags"));
-    console.log(encodeURIComponent(tags[i]));
-}
+        let self = this;
 
+        this.pictures.on("click", "img", function () {
+            console.log($(this));
+            let imageIDnumber = parseInt($(this).attr("id").substring(3));
 
-//javascript, jQuery
-// looks like the format is a string with each part separate by a +
-// ie. ryan+gosling
-var searchTerm = encodeURIComponent("Macho Man promo");
-var xhr = $.get(`https://api.giphy.com/v1/gifs/search?q=${searchTerm}&api_key=MSfEV1eyHtNS3mXorDXyqTQ7JB6jY8Pi&limit=15`);
-xhr.done(function (data) {
-    console.log("success got data", data);
-    for (let i = 0; i < data.data.length; i++) {
-        console.log(data.data[i]);
-        $("#pictures").append($("<img>").attr("src",
-            data.data[i].images["downsized_still"].url));
-        $("#pictures").append($("<img>").attr("src",
-            data.data[i].images["downsized"].url));
+            if ($(this).attr("src") ==
+                self.giphyData[imageIDnumber].images[self.stillStr].url) {
+                $(this).attr("src",
+                    self.giphyData[imageIDnumber].images[self.animatedStr].url);
+            }
+            else {
+                $(this).attr("src",
+                    self.giphyData[imageIDnumber].images[self.stillStr].url);
+            }
+
+        });
     }
+
+    GIPHYResponse.prototype.reset = function (giphyResponseData) {
+        this.giphyData = giphyResponseData;
+        this.pictures.empty();
+        this.createImages();
+    }
+
+    GIPHYResponse.prototype.createIMG = function (id, src) {
+        $("<img>").attr("id", id).attr("src", src).appendTo("#pictures");
+    }
+    GIPHYResponse.prototype.createImages = function () {
+        for (let i = 0; i < this.giphyData.length; i++) {
+            this.createIMG(`gif${i}`,
+                this.giphyData[i].images[this.stillStr].url);
+        }
+    }
+
+    let giphyObject = new GIPHYResponse();
+
+    // initial array of tags for the buttons
+    let tags = [
+        "Macho Man",
+        "Ultimate Warrior",
+        "Mil Muertes",
+        "Pentagon Dark",
+        "Joey Ryan",
+        'Marty "The Moth" Martinez',
+        "Bray Wyatt",
+        "Alexa Bliss",
+        "Rhonda Rousey",
+        "Hulk Hogan",
+        "John Cena",
+        "Andre the Giant",
+        "Stone Cold Steve Austin"];
+
+    // Create a button from a tag
+    tags.createButton = function (tagText) {
+        $("<button>").text(tagText + " ").addClass("btn btn-primary").appendTo($("#tags"));
+    };
+
+    // Initialize the page by creating a button for each tag
+    // in the array 
+    // Start listening for clicks on the buttons
+    tags.init = function () {
+        for (let i = 0; i < tags.length; i++) {
+            this.createButton(tags[i]);
+            console.log(encodeURIComponent(tags[i]));
+        }
+        this.listenForClicks();
+    };
+
+    // add a new tag to the array and add it to the DOM
+    tags.addElement = function (tagText) {
+        this.push(tagText);
+        this.createButton(tagText);
+    };
+
+    // listen to clicks on the buttons and request
+    // from GIPHY the gifs related to the button text
+    tags.listenForClicks = function () {
+
+        // must listen to #tags div to account for dynamically
+        // created buttons
+        $("#tags").on("click", ".btn", function () {
+
+            console.log($(this).text());
+
+            let searchTerm = encodeURIComponent($(this).text());
+            let requestedGIFS = "10";
+            let queryURL = `https://api.giphy.com/v1/gifs/search?q=${searchTerm}&api_key=MSfEV1eyHtNS3mXorDXyqTQ7JB6jY8Pi&limit=${requestedGIFS}`;
+
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                console.log("success got data", response);
+                giphyObject.reset(response.data);
+            });
+        });
+    };
+
+    tags.init();
+
 });

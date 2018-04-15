@@ -1,0 +1,16 @@
+#logo {
+    height:100px;
+}
+
+header h1 {
+    font-size:4em;
+    font-weight:bolder;
+}
+
+.btn {
+    margin: .25em;
+}
+
+#pictures img {
+    margin: .25em;
+}
