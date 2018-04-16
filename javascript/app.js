@@ -5,8 +5,8 @@ $(document).ready(function () {
     function GIPHYResponse() {
         this.giphyData = null;
         this.pictures = $("#pictures");
-        this.stillStr = "downsized_still";
-        this.animatedStr = "downsized";
+        this.stillStr = "original_still";
+        this.animatedStr = "original";
 
         let self = this;
 
@@ -48,6 +48,15 @@ $(document).ready(function () {
         figCaption.text(this.giphyData[index].rating.toUpperCase());
         figCaption.addClass("rating");
         imgContainer.append(figCaption);
+
+        let favoriteHeart = $("<span>");
+        favoriteHeart.html("&hearts;");
+        favoriteHeart.addClass("favorite");
+        favoriteHeart.attr("data-url",
+            this.giphyData[index].images[this.animatedStr].url);
+        favoriteHeart.attr("title", this.giphyData[index].title);
+        imgContainer.append(favoriteHeart);
+
         imgContainer.appendTo("#pictures");
     }
     // run through all the resulting images and print/create
@@ -129,9 +138,9 @@ $(document).ready(function () {
 
     // This is an object to store the custom tags input by users
     // It is using localStorage
-    function CustomTagStorage() {
+    function CustomStorage(storageIdentifier) {
         this.storageAvailable = (typeof (Storage) !== "undefined");
-        this.customTagKey = "gifMadnessCustomTags";
+        this.customTagKey = storageIdentifier;
         if (!this.storageAvailable) {
             console.log("LocalStorage not available to save custom tags.");
         }
@@ -140,14 +149,14 @@ $(document).ready(function () {
             // add the existing tags to the array
             let result = this.retrieve();
             if (result) {
-                for (let i =0; i < result.length; i ++) {
+                for (let i = 0; i < result.length; i++) {
                     tags.addElement(result[i]);
                 }
             }
         }
     }
 
-    CustomTagStorage.prototype.add = function (tag) {
+    CustomStorage.prototype.add = function (tag) {
         if (this.storageAvailable && tag) {
             let existingTags = this.retrieve();
             if (existingTags) {
@@ -161,24 +170,23 @@ $(document).ready(function () {
         }
     };
 
-    CustomTagStorage.prototype.retrieve = function () {
+    CustomStorage.prototype.retrieve = function () {
         let results = null;
         if (this.storageAvailable) {
-            debugger
+            //debugger
             results = JSON.parse(localStorage.getItem(this.customTagKey));
             console.log(`existing tags: ${results}`);
         }
         return results;
     };
 
-    CustomTagStorage.prototype.reset = function () {
+    CustomStorage.prototype.reset = function () {
         if (this.storageAvailable) {
             localStorage.removeItem(this.customTagKey);
         }
     }
 
-    let storage = new CustomTagStorage();
-    //storage.reset();
+    let buttonStorage = new CustomStorage("GIFMadness" + "CustomButtons");
 
 
     // this is a class that can be used to toggle on and off those irritating
@@ -203,12 +211,34 @@ $(document).ready(function () {
     let customTagElement = $("#customTag");
     $("#submitButton").click(function (event) {
         console.log(customTagElement);
-        debugger
+        event.preventDefault();
         if (customTagElement.val()) {
             tags.addElement(customTagElement.val());
-            storage.add(customTagElement.val());
+            buttonStorage.add(customTagElement.val());
             customTagElement.val("");
         }
     });
+
+
+    
+    let favoritesStorage = new CustomStorage("GIFMadness" + "Favorites");
+    //storage.reset();
+
+    function listenForFavorites() {
+
+        $("#pictures").on("click", ".favorite", function () {
+
+            console.log($(this).attr("data-url"));
+
+            let imgContainer = $("#favorites");
+            let img = $("<img>");
+            img.attr("src", $(this).attr("data-url"));
+            img.attr("alt", $(this).attr("title"));
+            img.attr("title", $(this).attr("title"));
+            imgContainer.append(img);
+        });
+    };
+    listenForFavorites();
+
 
 });

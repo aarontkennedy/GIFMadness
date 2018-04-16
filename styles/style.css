@@ -45,4 +45,20 @@ figure figcaption {
 
 #pictures img {
     max-width: 300px;
+    cursor: pointer;
 }
+
+.favorite {
+    color: red;
+    position: absolute;
+    top: .5em;
+    right: .5em;
+    font-weight: bolder;
+    cursor: pointer;
+}
+
+#favorites img {
+    display: inline-block;
+    width:75px;
+}
+
