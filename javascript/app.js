@@ -1,5 +1,7 @@
 $(document).ready(function () {
 
+    // this is an object that will essentially wrap the data/array of image
+    // objects returned from GIPHY
     function GIPHYResponse() {
         this.giphyData = null;
         this.pictures = $("#pictures");
@@ -8,6 +10,8 @@ $(document).ready(function () {
 
         let self = this;
 
+        // this will be listening to any images added to the document
+        // if the images are clicked, toggle them from still to animated
         this.pictures.on("click", "img", function () {
             console.log($(this));
             let imageIDnumber = parseInt($(this).attr("id").substring(3));
@@ -25,18 +29,22 @@ $(document).ready(function () {
         });
     }
 
+    // we must have clicked a new tag/button  
+    // wrap the new object, delete old images and print the new ones
     GIPHYResponse.prototype.reset = function (giphyResponseData) {
         this.giphyData = giphyResponseData;
         this.pictures.empty();
         this.createImages();
     }
 
+    // create the image, rating, and wrapping element
     GIPHYResponse.prototype.createIMG = function (id, src, rating) {
         let imgContainer = $("<figure>");
         imgContainer.append($("<img>").attr("id", id).attr("src", src));
         imgContainer.append($("<figcaption>").text(rating.toUpperCase()).addClass("rating"));
         imgContainer.appendTo("#pictures");
     }
+    // run through all the resulting images and print/create
     GIPHYResponse.prototype.createImages = function () {
         for (let i = 0; i < this.giphyData.length; i++) {
             this.createIMG(`gif${i}`,
@@ -47,6 +55,8 @@ $(document).ready(function () {
     }
 
     let giphyObject = new GIPHYResponse();
+
+
 
     // initial array of tags for the buttons
     let tags = [
@@ -112,6 +122,57 @@ $(document).ready(function () {
     tags.init();
 
 
+
+
+    // This is an object to store the custom tags input by users
+    // It is using localStorage
+    function CustomTagStorage() {
+        this.storageAvailable = (typeof (Storage) !== "undefined");
+        this.customTagKey = "gifMadnessCustomTags";
+        if (!this.storageAvailable) {
+            console.log("LocalStorage not available to save custom tags.");
+        }
+        else {
+            console.log("LocalStorage available to save custom tags.");
+            // add the existing tags to the array
+            debugger
+            let result = this.retrieve();
+            if (result) {
+                tags.addElement(result);
+            }
+        }
+    }
+
+    CustomTagStorage.prototype.add = function (tag) {
+        debugger
+        if (this.storageAvailable && tag) {
+            let existingTags = this.retrieve();
+            localStorage.setItem(this.customTagKey,
+                (existingTags ? existingTags + tag : tag));
+        }
+    };
+
+    CustomTagStorage.prototype.retrieve = function () {
+        let results = "";
+        if (this.storageAvailable) {
+            results = localStorage.getItem(this.customTagKey);
+            console.log(`existing tags: ${results}`);
+        }
+        return results;
+    };
+
+    CustomTagStorage.prototype.reset = function () {
+        if (this.storageAvailable) {
+            localStorage.removeItem(this.customTagKey);
+        }
+    }
+
+    let storage = new CustomTagStorage();
+    //storage.reset();
+
+
+    // this is a class that can be used to toggle on and off those irritating
+    // ratings
     function RatingsToggler() {
         this.element = $("#showRatings");
         this.showRatingsString = "Show Ratings";
@@ -124,11 +185,11 @@ $(document).ready(function () {
 
             if (self.element.text() == self.showRatingsString) {
                 self.element.text("Hide Ratings");
-                $(".rating").show();
+                $(".rating").show();  // why won't these work when I cache them?
             }
             else {
                 self.element.text(self.showRatingsString);
-                $(".rating").hide();
+                $(".rating").hide();  // why won't these work when I cache them?
             }
         });
     }
@@ -136,5 +197,17 @@ $(document).ready(function () {
     let toggler = new RatingsToggler();
 
 
+    // we need to listen to the submit button and add any requested text as
+    // tags to the array
+    let customTagElement = $("#customTag");
+    $("#submitButton").click(function (event) {
+        console.log(customTagElement);
+        debugger
+        if (customTagElement.val()) {
+            tags.addElement(customTagElement.val());
+            storage.add(customTagElement.val());
+            customTagElement.val("");
+        }
+    });
 
 });
