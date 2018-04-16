@@ -220,11 +220,11 @@ $(document).ready(function () {
     });
 
 
-    
+
     let favoritesStorage = new CustomStorage("GIFMadness" + "Favorites");
     //storage.reset();
 
-    function listenForFavorites() {
+    function listenForNewFavorites() {
 
         $("#pictures").on("click", ".favorite", function () {
 
@@ -238,7 +238,29 @@ $(document).ready(function () {
             imgContainer.append(img);
         });
     };
-    listenForFavorites();
+    listenForNewFavorites();
+
+
+    function listenForFavoriteClicked() {
+
+        $("#favorites").on("click", "img", function () {
+
+            console.log($(this).attr("src"));
+
+            let imgContainer = $("body");
+            let img = $("<img>");
+            img.attr("src", $(this).attr("src"));
+            img.attr("alt", $(this).attr("title"));
+            img.attr("title", $(this).attr("title"));
+            img.addClass("takeOverScreen");
+            imgContainer.append(img);
+
+            img.click(function () {
+                img.remove();
+            });
+        });
+    };
+    listenForFavoriteClicked();
 
 
 });

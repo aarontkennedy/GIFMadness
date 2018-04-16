@@ -60,5 +60,15 @@ figure figcaption {
 #favorites img {
     display: inline-block;
     width:75px;
+    margin: .25em;
 }
 
+img.takeOverScreen {
+    position: fixed;
+    top: 50%;
+    transform: translate(0, -50%);
+    left:5%;
+    width:90%;
+    padding: .5em;
+    background-color: white;
+}
