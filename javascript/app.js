@@ -14,18 +14,13 @@ $(document).ready(function () {
         // if the images are clicked, toggle them from still to animated
         this.pictures.on("click", "img", function () {
             console.log($(this));
-            let imageIDnumber = parseInt($(this).attr("id").substring(3));
 
-            if ($(this).attr("src") ==
-                self.giphyData[imageIDnumber].images[self.stillStr].url) {
-                $(this).attr("src",
-                    self.giphyData[imageIDnumber].images[self.animatedStr].url);
+            if ($(this).attr("src") == $(this).attr("data-still")) {
+                $(this).attr("src", $(this).attr("data-animated"));
             }
             else {
-                $(this).attr("src",
-                    self.giphyData[imageIDnumber].images[self.stillStr].url);
+                $(this).attr("src", $(this).attr("data-still"));
             }
-
         });
     }
 
@@ -35,24 +30,32 @@ $(document).ready(function () {
         this.giphyData = giphyResponseData;
         this.pictures.empty();
         this.createImages();
-    }
+    };
 
     // create the image, rating, and wrapping element
-    GIPHYResponse.prototype.createIMG = function (id, src, rating) {
+    GIPHYResponse.prototype.createIMG = function (index) {
         let imgContainer = $("<figure>");
-        imgContainer.append($("<img>").attr("id", id).attr("src", src));
-        imgContainer.append($("<figcaption>").text(rating.toUpperCase()).addClass("rating"));
+        let img = $("<img>");
+        //img.attr("data-index", index); // not needed?
+        img.attr("src", this.giphyData[index].images[this.stillStr].url);
+        img.attr("data-still", this.giphyData[index].images[this.stillStr].url);
+        img.attr("data-animated", this.giphyData[index].images[this.animatedStr].url);
+        img.attr("alt", this.giphyData[index].title);
+        img.attr("title", this.giphyData[index].title);
+        imgContainer.append(img);
+
+        let figCaption = $("<figcaption>");
+        figCaption.text(this.giphyData[index].rating.toUpperCase());
+        figCaption.addClass("rating");
+        imgContainer.append(figCaption);
         imgContainer.appendTo("#pictures");
     }
     // run through all the resulting images and print/create
     GIPHYResponse.prototype.createImages = function () {
         for (let i = 0; i < this.giphyData.length; i++) {
-            this.createIMG(`gif${i}`,
-                this.giphyData[i].images[this.stillStr].url,
-                this.giphyData[i].rating
-            );
+            this.createIMG(i);
         }
-    }
+    };
 
     let giphyObject = new GIPHYResponse();
 
@@ -84,7 +87,7 @@ $(document).ready(function () {
     tags.init = function () {
         for (let i = 0; i < tags.length; i++) {
             this.createButton(tags[i]);
-            console.log(encodeURIComponent(tags[i]));
+            //console.log(encodeURIComponent(tags[i]));
         }
         this.listenForClicks();
     };
@@ -135,7 +138,6 @@ $(document).ready(function () {
         else {
             console.log("LocalStorage available to save custom tags.");
             // add the existing tags to the array
-            debugger
             let result = this.retrieve();
             if (result) {
                 tags.addElement(result);
@@ -144,7 +146,6 @@ $(document).ready(function () {
     }
 
     CustomTagStorage.prototype.add = function (tag) {
-        debugger
         if (this.storageAvailable && tag) {
             let existingTags = this.retrieve();
             localStorage.setItem(this.customTagKey,
@@ -175,22 +176,13 @@ $(document).ready(function () {
     // ratings
     function RatingsToggler() {
         this.element = $("#showRatings");
-        this.showRatingsString = "Show Ratings";
 
         let self = this;
 
         $("#showRatings").click(function (event) {
             event.preventDefault();
             console.log(event);
-
-            if (self.element.text() == self.showRatingsString) {
-                self.element.text("Hide Ratings");
-                $(".rating").show();  // why won't these work when I cache them?
-            }
-            else {
-                self.element.text(self.showRatingsString);
-                $(".rating").hide();  // why won't these work when I cache them?
-            }
+                $(".rating").toggle();  // why won't these work when I cache them?
         });
     }
 

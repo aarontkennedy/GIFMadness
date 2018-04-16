@@ -42,3 +42,7 @@ figure figcaption {
 #showRatings {
     margin: .25em;
 }
+
+#pictures img {
+    max-width: 300px;
+}
