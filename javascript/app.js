@@ -184,7 +184,7 @@ $(document).ready(function () {
     // in case we need to offset
     tags.lastSearchTerm = "";
     tags.offset = 0;
-    tags.requestedGIFS = 10; 
+    tags.requestedGIFS = 10;
     // listen to clicks on the buttons and request
     // from GIPHY the gifs related to the button text
     tags.listenForClicks = function () {
@@ -251,7 +251,8 @@ $(document).ready(function () {
         oldFavorites = this.favoritesStorage.retrieve();
         if (oldFavorites) {
             for (let i = 0; i < oldFavorites.length; i++) {
-                this.createFavoriteImage(oldFavorites[i], "");
+                this.createFavoriteImage(oldFavorites[i][0],
+                    oldFavorites[i][1]);
             }
         }
 
@@ -260,7 +261,7 @@ $(document).ready(function () {
     }
 
     // create a favorite image thumbnail in the favorite section
-    FavoritesGIFS.prototype.createFavoriteImage = function (url, title) {         
+    FavoritesGIFS.prototype.createFavoriteImage = function (url, title) {
         let img = $("<img>");
         img.attr("src", url);
         img.attr("alt", title);
@@ -277,7 +278,8 @@ $(document).ready(function () {
 
             self.createFavoriteImage($(this).attr("data-url"),
                 $(this).attr("title"));
-            self.favoritesStorage.add($(this).attr("data-url"));
+            self.favoritesStorage.add(
+                [$(this).attr("data-url"), $(this).attr("title")]);
         });
     };
 
