@@ -140,7 +140,9 @@ $(document).ready(function () {
             // add the existing tags to the array
             let result = this.retrieve();
             if (result) {
-                tags.addElement(result);
+                for (let i =0; i < result.length; i ++) {
+                    tags.addElement(result[i]);
+                }
             }
         }
     }
@@ -148,15 +150,22 @@ $(document).ready(function () {
     CustomTagStorage.prototype.add = function (tag) {
         if (this.storageAvailable && tag) {
             let existingTags = this.retrieve();
+            if (existingTags) {
+                existingTags.push(tag);
+            }
+            else {
+                existingTags = [tag];
+            }
             localStorage.setItem(this.customTagKey,
-                (existingTags ? existingTags + tag : tag));
+                JSON.stringify(existingTags));
         }
     };
 
     CustomTagStorage.prototype.retrieve = function () {
-        let results = "";
+        let results = null;
         if (this.storageAvailable) {
-            results = localStorage.getItem(this.customTagKey);
+            debugger
+            results = JSON.parse(localStorage.getItem(this.customTagKey));
             console.log(`existing tags: ${results}`);
         }
         return results;
@@ -182,7 +191,7 @@ $(document).ready(function () {
         $("#showRatings").click(function (event) {
             event.preventDefault();
             console.log(event);
-                $(".rating").toggle();  // why won't these work when I cache them?
+            $(".rating").toggle();  // why won't these work when I cache them?
         });
     }
 
