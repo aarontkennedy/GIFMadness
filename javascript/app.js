@@ -31,8 +31,16 @@ $(document).ready(function () {
         this.pictures.empty();
         this.createImages();
     };
-
+    // run through all the resulting images and print/create
+    GIPHYResponse.prototype.createImages = function () {
+        for (let i = 0; i < this.giphyData.length; i++) {
+            this.createIMG(i);
+        }
+    };
     // create the image, rating, and wrapping element
+    // this function has a lot to do to actually display an image
+    // i am creating a figure with an image, figcaption, and heart
+    // inside it
     GIPHYResponse.prototype.createIMG = function (index) {
         let imgContainer = $("<figure>");
         let img = $("<img>");
@@ -44,11 +52,13 @@ $(document).ready(function () {
         img.attr("title", this.giphyData[index].title);
         imgContainer.append(img);
 
+        // showing the rating in a caption
         let figCaption = $("<figcaption>");
         figCaption.text(this.giphyData[index].rating.toUpperCase());
         figCaption.addClass("rating");
         imgContainer.append(figCaption);
 
+        // adding a heart for favorites
         let favoriteHeart = $("<span>");
         favoriteHeart.html("&hearts;");
         favoriteHeart.addClass("favorite");
@@ -59,14 +69,52 @@ $(document).ready(function () {
 
         imgContainer.appendTo("#pictures");
     }
-    // run through all the resulting images and print/create
-    GIPHYResponse.prototype.createImages = function () {
-        for (let i = 0; i < this.giphyData.length; i++) {
-            this.createIMG(i);
+
+    let giphyObject = new GIPHYResponse();
+
+
+    // This is an object to store the custom tags input by users
+    // It is using localStorage
+    function CustomStorage(storageIdentifier) {
+        this.storageAvailable = (typeof (Storage) !== "undefined");
+        this.customTagKey = storageIdentifier;
+        if (!this.storageAvailable) {
+            console.log("LocalStorage not available to save custom tags.");
+        }
+        else {
+            console.log("LocalStorage available to save custom tags.");
+        }
+    }
+
+    CustomStorage.prototype.add = function (tag) {
+        if (this.storageAvailable && tag) {
+            let existingTags = this.retrieve();
+            if (existingTags) {
+                existingTags.push(tag);
+            }
+            else {
+                existingTags = [tag];
+            }
+            localStorage.setItem(this.customTagKey,
+                JSON.stringify(existingTags));
         }
     };
 
-    let giphyObject = new GIPHYResponse();
+    CustomStorage.prototype.retrieve = function () {
+        let results = null;
+        if (this.storageAvailable) {
+            //debugger
+            results = JSON.parse(localStorage.getItem(this.customTagKey));
+            console.log(`existing tags: ${results}`);
+        }
+        return results;
+    };
+
+    CustomStorage.prototype.reset = function () {
+        if (this.storageAvailable) {
+            localStorage.removeItem(this.customTagKey);
+        }
+    }
 
 
 
@@ -90,6 +138,22 @@ $(document).ready(function () {
         $("<button>").text(tagText + " ").addClass("btn btn-primary").appendTo($("#tags"));
     };
 
+
+    buttonStorage = new CustomStorage("GIFMadness" + "CustomButtons");
+
+    // we need to listen to the submit button and add any requested text as
+    // tags to the array
+    let customTagElement = $("#customTag");
+    $("#submitButton").click(function (event) {
+        console.log(customTagElement);
+        event.preventDefault();
+        if (customTagElement.val()) {
+            tags.addElement(customTagElement.val());
+            buttonStorage.add(customTagElement.val());
+            customTagElement.val("");
+        }
+    });
+
     // Initialize the page by creating a button for each tag
     // in the array 
     // Start listening for clicks on the buttons
@@ -98,6 +162,15 @@ $(document).ready(function () {
             this.createButton(tags[i]);
             //console.log(encodeURIComponent(tags[i]));
         }
+
+        // add the existing tags to the array
+        let result = buttonStorage.retrieve();
+        if (result) {
+            for (let i = 0; i < result.length; i++) {
+                tags.addElement(result[i]);
+            }
+        }
+
         this.listenForClicks();
     };
 
@@ -136,61 +209,10 @@ $(document).ready(function () {
 
 
 
-    // This is an object to store the custom tags input by users
-    // It is using localStorage
-    function CustomStorage(storageIdentifier) {
-        this.storageAvailable = (typeof (Storage) !== "undefined");
-        this.customTagKey = storageIdentifier;
-        if (!this.storageAvailable) {
-            console.log("LocalStorage not available to save custom tags.");
-        }
-        else {
-            console.log("LocalStorage available to save custom tags.");
-            // add the existing tags to the array
-            let result = this.retrieve();
-            if (result) {
-                for (let i = 0; i < result.length; i++) {
-                    tags.addElement(result[i]);
-                }
-            }
-        }
-    }
-
-    CustomStorage.prototype.add = function (tag) {
-        if (this.storageAvailable && tag) {
-            let existingTags = this.retrieve();
-            if (existingTags) {
-                existingTags.push(tag);
-            }
-            else {
-                existingTags = [tag];
-            }
-            localStorage.setItem(this.customTagKey,
-                JSON.stringify(existingTags));
-        }
-    };
-
-    CustomStorage.prototype.retrieve = function () {
-        let results = null;
-        if (this.storageAvailable) {
-            //debugger
-            results = JSON.parse(localStorage.getItem(this.customTagKey));
-            console.log(`existing tags: ${results}`);
-        }
-        return results;
-    };
-
-    CustomStorage.prototype.reset = function () {
-        if (this.storageAvailable) {
-            localStorage.removeItem(this.customTagKey);
-        }
-    }
-
-    let buttonStorage = new CustomStorage("GIFMadness" + "CustomButtons");
-
 
     // this is a class that can be used to toggle on and off those irritating
-    // ratings
+    // ratings - haven't figured out how to make new ratings be hidden without
+    // toggling again
     function RatingsToggler() {
         this.element = $("#showRatings");
 
@@ -202,46 +224,50 @@ $(document).ready(function () {
             $(".rating").toggle();  // why won't these work when I cache them?
         });
     }
-
     let toggler = new RatingsToggler();
 
 
-    // we need to listen to the submit button and add any requested text as
-    // tags to the array
-    let customTagElement = $("#customTag");
-    $("#submitButton").click(function (event) {
-        console.log(customTagElement);
-        event.preventDefault();
-        if (customTagElement.val()) {
-            tags.addElement(customTagElement.val());
-            buttonStorage.add(customTagElement.val());
-            customTagElement.val("");
+    // this is an object to take care of showing, storing favorite gifs
+    function FavoritesGIFS() {
+        // create a storage object with the tag we have been storing stuff
+        this.favoritesStorage = new CustomStorage("GIFMadness" + "Favorites");
+        this.favoritesContainer = $("#favorites");
+
+        // retrieve old/stored favorites and add them to the favorites section
+        oldFavorites = this.favoritesStorage.retrieve();
+        if (oldFavorites) {
+            for (let i = 0; i < oldFavorites.length; i++) {
+                this.createFavoriteImage(oldFavorites[i], "");
+            }
         }
-    });
 
+        this.listenForNewFavorites();
+        this.listenForFavoriteClicked();
+    }
 
+    // create a favorite image thumbnail in the favorite section
+    FavoritesGIFS.prototype.createFavoriteImage = function (url, title) {         
+        let img = $("<img>");
+        img.attr("src", url);
+        img.attr("alt", title);
+        img.attr("title", title);
+        this.favoritesContainer.append(img);
+    }
 
-    let favoritesStorage = new CustomStorage("GIFMadness" + "Favorites");
-    //storage.reset();
-
-    function listenForNewFavorites() {
+    // listen for the clicking of the hearts to add new favorites
+    FavoritesGIFS.prototype.listenForNewFavorites = function () {
+        let self = this;
 
         $("#pictures").on("click", ".favorite", function () {
-
             console.log($(this).attr("data-url"));
 
-            let imgContainer = $("#favorites");
-            let img = $("<img>");
-            img.attr("src", $(this).attr("data-url"));
-            img.attr("alt", $(this).attr("title"));
-            img.attr("title", $(this).attr("title"));
-            imgContainer.append(img);
+            self.createFavoriteImage($(this).attr("data-url"),
+                $(this).attr("title"));
+            self.favoritesStorage.add($(this).attr("data-url"));
         });
     };
-    listenForNewFavorites();
 
-
-    function listenForFavoriteClicked() {
+    FavoritesGIFS.prototype.listenForFavoriteClicked = function () {
 
         $("#favorites").on("click", "img", function () {
 
@@ -260,7 +286,8 @@ $(document).ready(function () {
             });
         });
     };
-    listenForFavoriteClicked();
+    let favoritesObject = new FavoritesGIFS();
+
 
 
 });
