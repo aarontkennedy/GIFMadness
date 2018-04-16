@@ -180,6 +180,11 @@ $(document).ready(function () {
         this.createButton(tagText);
     };
 
+    // this is needed to keep track of what the last search was
+    // in case we need to offset
+    tags.lastSearchTerm = "";
+    tags.offset = 0;
+    tags.requestedGIFS = 10; 
     // listen to clicks on the buttons and request
     // from GIPHY the gifs related to the button text
     tags.listenForClicks = function () {
@@ -191,8 +196,17 @@ $(document).ready(function () {
             console.log($(this).text());
 
             let searchTerm = encodeURIComponent($(this).text());
-            let requestedGIFS = "10";
-            let queryURL = `https://api.giphy.com/v1/gifs/search?q=${searchTerm}&api_key=MSfEV1eyHtNS3mXorDXyqTQ7JB6jY8Pi&limit=${requestedGIFS}`;
+            let myKey = "MSfEV1eyHtNS3mXorDXyqTQ7JB6jY8Pi";
+
+            if (searchTerm == tags.lastSearchTerm) {
+                tags.offset += tags.requestedGIFS;
+            }
+            else {
+                tags.offset = 0;
+                tags.lastSearchTerm = searchTerm;
+            }
+
+            let queryURL = `https://api.giphy.com/v1/gifs/search?q=${searchTerm}&api_key=${myKey}&limit=${tags.requestedGIFS}&offset=${tags.offset}`;
 
             $.ajax({
                 url: queryURL,
