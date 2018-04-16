@@ -11,6 +11,20 @@ header h1 {
     margin: .25em;
 }
 
-#pictures img {
+figure {
+    display: inline-block;
+    position: relative;
+    margin: .25em;
+}
+
+figure figcaption {
+    position: absolute;
+    top: .5em;
+    left: .5em;
+    font-weight: bolder;
+    color: white;
+}
+
+#showRatings {
     margin: .25em;
 }

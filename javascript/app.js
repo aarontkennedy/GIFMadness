@@ -31,13 +31,18 @@ $(document).ready(function () {
         this.createImages();
     }
 
-    GIPHYResponse.prototype.createIMG = function (id, src) {
-        $("<img>").attr("id", id).attr("src", src).appendTo("#pictures");
+    GIPHYResponse.prototype.createIMG = function (id, src, rating) {
+        let imgContainer = $("<figure>");
+        imgContainer.append($("<img>").attr("id", id).attr("src", src));
+        imgContainer.append($("<figcaption>").text(rating.toUpperCase()).addClass("rating"));
+        imgContainer.appendTo("#pictures");
     }
     GIPHYResponse.prototype.createImages = function () {
         for (let i = 0; i < this.giphyData.length; i++) {
             this.createIMG(`gif${i}`,
-                this.giphyData[i].images[this.stillStr].url);
+                this.giphyData[i].images[this.stillStr].url,
+                this.giphyData[i].rating
+            );
         }
     }
 
@@ -50,7 +55,6 @@ $(document).ready(function () {
         "Mil Muertes",
         "Pentagon Dark",
         "Joey Ryan",
-        'Marty "The Moth" Martinez',
         "Bray Wyatt",
         "Alexa Bliss",
         "Rhonda Rousey",
@@ -106,5 +110,31 @@ $(document).ready(function () {
     };
 
     tags.init();
+
+
+    function RatingsToggler() {
+        this.element = $("#showRatings");
+        this.showRatingsString = "Show Ratings";
+
+        let self = this;
+
+        $("#showRatings").click(function (event) {
+            event.preventDefault();
+            console.log(event);
+
+            if (self.element.text() == self.showRatingsString) {
+                self.element.text("Hide Ratings");
+                $(".rating").show();
+            }
+            else {
+                self.element.text(self.showRatingsString);
+                $(".rating").hide();
+            }
+        });
+    }
+
+    let toggler = new RatingsToggler();
+
+
 
 });
