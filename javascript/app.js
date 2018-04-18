@@ -147,9 +147,10 @@ $(document).ready(function () {
     $("#submitButton").click(function (event) {
         console.log(customTagElement);
         event.preventDefault();
-        if (customTagElement.val()) {
-            tags.addElement(customTagElement.val());
-            buttonStorage.add(customTagElement.val());
+        let userInput = customTagElement.val().trim();
+        if (userInput) {
+            tags.addElement(userInput);
+            buttonStorage.add(userInput);
             customTagElement.val("");
         }
     });

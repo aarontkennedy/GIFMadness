@@ -4,6 +4,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+    font-family: 'Kirang Haerang', cursive;
 }
 section {
     flex: 1 0 auto;
@@ -19,7 +20,6 @@ footer {
 header h1 {
     font-size:4em;
     font-weight:bolder;
-    font-family: 'Kirang Haerang', cursive;
 }
 
 .btn {
