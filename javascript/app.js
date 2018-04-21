@@ -106,6 +106,21 @@ $(document).ready(function () {
         return results;
     };
 
+    CustomStorage.prototype.isStoredAlready = function (item) {
+        let currentStorage = this.retrieve();
+        let stringyItem = JSON.stringify(item);  // need this since I store arrays
+        debugger
+        if (currentStorage) {
+            // can't use index of, i sometimes store arrays
+            for(let i=0; i < currentStorage.length; i++) {
+                if (JSON.stringify(currentStorage[i]) == stringyItem) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }    
+
     CustomStorage.prototype.reset = function () {
         if (this.storageAvailable) {
             localStorage.removeItem(this.customTagKey);
@@ -281,12 +296,14 @@ $(document).ready(function () {
         let self = this;
 
         $("#pictures").on("click", ".favorite", function () {
-            console.log($(this).attr("data-url"));
+            let newFavorite = $(this).attr("data-url");
+            let favTitle = $(this).attr("title");
+            console.log(newFavorite);
 
-            self.createFavoriteImage($(this).attr("data-url"),
-                $(this).attr("title"));
-            self.favoritesStorage.add(
-                [$(this).attr("data-url"), $(this).attr("title")]);
+            if (!self.favoritesStorage.isStoredAlready([newFavorite, favTitle])) {
+                self.createFavoriteImage(newFavorite, favTitle);
+                self.favoritesStorage.add([newFavorite, favTitle]);
+            }
         });
     };
 
