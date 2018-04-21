@@ -39,9 +39,10 @@ figure figcaption {
     left: .5em;
     font-weight: bolder;
     color: white;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
-#showRatings {
+#showRatingsLink {
     margin: .25em;
 }
 
@@ -73,4 +74,12 @@ img.takeOverScreen {
     width:60%;
     padding: .5em;
     background-color: white;
+}
+
+.show-ratings .rating {
+    display: inline;
+}
+
+.no-ratings .rating {
+    display: none;
 }

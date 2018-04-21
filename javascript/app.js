@@ -1,9 +1,8 @@
 $(document).ready(function () {
 
-    // this is an object that will essentially wrap the data/array of image
+    // this is an object that will handle the data/array of image
     // objects returned from GIPHY
     function GIPHYResponse() {
-        this.giphyData = null;
         this.pictures = $("#pictures");
         this.stillStr = "original_still";
         this.animatedStr = "original";
@@ -24,37 +23,34 @@ $(document).ready(function () {
         });
     }
 
-    // we must have clicked a new tag/button  
-    // wrap the new object, delete old images and print the new ones
-    GIPHYResponse.prototype.reset = function (giphyResponseData) {
-        this.giphyData = giphyResponseData;
+    // clear existing pictures
+    GIPHYResponse.prototype.clear = function () {
         this.pictures.empty();
-        this.createImages();
     };
     // run through all the resulting images and print/create
-    GIPHYResponse.prototype.createImages = function () {
-        for (let i = 0; i < this.giphyData.length; i++) {
-            this.createIMG(i);
+    GIPHYResponse.prototype.createImages = function (giphyData) {
+        for (let i = 0; i < giphyData.length; i++) {
+            this.createIMG(giphyData[i]);
         }
     };
     // create the image, rating, and wrapping element
     // this function has a lot to do to actually display an image
     // i am creating a figure with an image, figcaption, and heart
     // inside it
-    GIPHYResponse.prototype.createIMG = function (index) {
+    GIPHYResponse.prototype.createIMG = function (giphyImageData) {
         let imgContainer = $("<figure>");
         let img = $("<img>");
         //img.attr("data-index", index); // not needed?
-        img.attr("src", this.giphyData[index].images[this.stillStr].url);
-        img.attr("data-still", this.giphyData[index].images[this.stillStr].url);
-        img.attr("data-animated", this.giphyData[index].images[this.animatedStr].url);
-        img.attr("alt", this.giphyData[index].title);
-        img.attr("title", this.giphyData[index].title);
+        img.attr("src", giphyImageData.images[this.stillStr].url);
+        img.attr("data-still", giphyImageData.images[this.stillStr].url);
+        img.attr("data-animated", giphyImageData.images[this.animatedStr].url);
+        img.attr("alt", giphyImageData.title);
+        img.attr("title", giphyImageData.title);
         imgContainer.append(img);
 
         // showing the rating in a caption
         let figCaption = $("<figcaption>");
-        figCaption.text(this.giphyData[index].rating.toUpperCase());
+        figCaption.text(giphyImageData.rating.toUpperCase());
         figCaption.addClass("rating");
         imgContainer.append(figCaption);
 
@@ -63,11 +59,11 @@ $(document).ready(function () {
         favoriteHeart.html("&hearts;");
         favoriteHeart.addClass("favorite");
         favoriteHeart.attr("data-url",
-            this.giphyData[index].images[this.animatedStr].url);
-        favoriteHeart.attr("title", this.giphyData[index].title);
+        giphyImageData.images[this.animatedStr].url);
+        favoriteHeart.attr("title", giphyImageData.title);
         imgContainer.append(favoriteHeart);
 
-        imgContainer.appendTo("#pictures");
+        imgContainer.prependTo("#pictures");
     }
 
     let giphyObject = new GIPHYResponse();
@@ -148,11 +144,12 @@ $(document).ready(function () {
         console.log(customTagElement);
         event.preventDefault();
         let userInput = customTagElement.val().trim();
-        if (userInput) {
+        // make sure the user input isn't whitespace or a repeat
+        if (userInput && tags.indexOf(userInput) == -1) {
             tags.addElement(userInput);
             buttonStorage.add(userInput);
-            customTagElement.val("");
         }
+        customTagElement.val("");  // reset after submit
     });
 
     // Initialize the page by creating a button for each tag
@@ -205,6 +202,7 @@ $(document).ready(function () {
             else {
                 tags.offset = 0;
                 tags.lastSearchTerm = searchTerm;
+                giphyObject.clear();
             }
 
             let queryURL = `https://api.giphy.com/v1/gifs/search?q=${searchTerm}&api_key=${myKey}&limit=${tags.requestedGIFS}&offset=${tags.offset}`;
@@ -214,7 +212,10 @@ $(document).ready(function () {
                 method: "GET"
             }).then(function (response) {
                 console.log("success got data", response);
-                giphyObject.reset(response.data);
+                giphyObject.createImages(response.data);
+                // fortunately GIPHY fails nicely if you request more pictures
+                // than are available, it returns and empty data array
+                // and doesn't cause my code to crash.
             });
         });
     };
@@ -226,20 +227,25 @@ $(document).ready(function () {
 
 
     // this is a class that can be used to toggle on and off those irritating
-    // ratings - haven't figured out how to make new ratings be hidden without
-    // toggling again
+    // thanks Andrey for the more elegant solution of putting the show class on the parent
     function RatingsToggler() {
-        this.element = $("#showRatings");
-
         let self = this;
 
-        $("#showRatings").click(function (event) {
+        $("#showRatingsLink").click(function (event) {
             event.preventDefault();
             console.log(event);
-            $(".rating").toggle();  // why won't these work when I cache them?
-        });
+            if ($("#pictures").hasClass("show-ratings")) { 
+                $("#pictures").removeClass("show-ratings");
+                $("#pictures").addClass("no-ratings");
+            }
+            else {
+                $("#pictures").addClass("show-ratings");
+                $("#pictures").removeClass("no-ratings");
+            }
+            });
     }
     let toggler = new RatingsToggler();
+
 
 
     // this is an object to take care of showing, storing favorite gifs
@@ -286,7 +292,7 @@ $(document).ready(function () {
 
     FavoritesGIFS.prototype.listenForFavoriteClicked = function () {
 
-        $("#favorites").on("click", "img", function () {
+        this.favoritesContainer .on("click", "img", function () {
 
             console.log($(this).attr("src"));
 
