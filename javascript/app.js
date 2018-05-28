@@ -12,13 +12,20 @@ $(document).ready(function () {
         // this will be listening to any images added to the document
         // if the images are clicked, toggle them from still to animated
         this.pictures.on("click", "img", function () {
-            console.log($(this));
-
-            if ($(this).attr("src") == $(this).attr("data-still")) {
-                $(this).attr("src", $(this).attr("data-animated"));
+            let thisImage = $(this);
+            let parentFigure = thisImage.parent();
+            if (thisImage.attr("src") == thisImage.attr("data-still")) {
+                parentFigure.addClass("loading");
+                
+                let animated = new Image();
+                animated.src = thisImage.attr("data-animated");
+                animated.onload = function() {
+                    parentFigure.removeClass("loading");
+                    thisImage.attr("src", thisImage.attr("data-animated"));
+                };
             }
             else {
-                $(this).attr("src", $(this).attr("data-still"));
+                thisImage.attr("src", thisImage.attr("data-still"));
             }
         });
     }
@@ -59,7 +66,7 @@ $(document).ready(function () {
         favoriteHeart.html("&hearts;");
         favoriteHeart.addClass("favorite");
         favoriteHeart.attr("data-url",
-        giphyImageData.images[this.animatedStr].url);
+            giphyImageData.images[this.animatedStr].url);
         favoriteHeart.attr("title", giphyImageData.title);
         imgContainer.append(favoriteHeart);
 
@@ -99,9 +106,7 @@ $(document).ready(function () {
     CustomStorage.prototype.retrieve = function () {
         let results = null;
         if (this.storageAvailable) {
-            //debugger
             results = JSON.parse(localStorage.getItem(this.customTagKey));
-            console.log(`existing tags: ${results}`);
         }
         return results;
     };
@@ -109,17 +114,16 @@ $(document).ready(function () {
     CustomStorage.prototype.isStoredAlready = function (item) {
         let currentStorage = this.retrieve();
         let stringyItem = JSON.stringify(item);  // need this since I store arrays
-        debugger
         if (currentStorage) {
             // can't use index of, i sometimes store arrays
-            for(let i=0; i < currentStorage.length; i++) {
+            for (let i = 0; i < currentStorage.length; i++) {
                 if (JSON.stringify(currentStorage[i]) == stringyItem) {
                     return true;
                 }
             }
         }
         return false;
-    }    
+    }
 
     CustomStorage.prototype.reset = function () {
         if (this.storageAvailable) {
@@ -156,7 +160,7 @@ $(document).ready(function () {
     // tags to the array
     let customTagElement = $("#customTag");
     $("#submitButton").click(function (event) {
-        console.log(customTagElement);
+        
         event.preventDefault();
         let userInput = customTagElement.val().trim();
         // make sure the user input isn't whitespace or a repeat
@@ -173,7 +177,6 @@ $(document).ready(function () {
     tags.init = function () {
         for (let i = 0; i < tags.length; i++) {
             this.createButton(tags[i]);
-            //console.log(encodeURIComponent(tags[i]));
         }
 
         // add the existing tags to the array
@@ -206,8 +209,6 @@ $(document).ready(function () {
         // created buttons
         $("#tags").on("click", ".btn", function () {
 
-            console.log($(this).text());
-
             let searchTerm = encodeURIComponent($(this).text());
             let myKey = "MSfEV1eyHtNS3mXorDXyqTQ7JB6jY8Pi";
 
@@ -226,7 +227,6 @@ $(document).ready(function () {
                 url: queryURL,
                 method: "GET"
             }).then(function (response) {
-                console.log("success got data", response);
                 giphyObject.createImages(response.data);
                 // fortunately GIPHY fails nicely if you request more pictures
                 // than are available, it returns and empty data array
@@ -248,8 +248,7 @@ $(document).ready(function () {
 
         $("#showRatingsLink").click(function (event) {
             event.preventDefault();
-            console.log(event);
-            if ($("#pictures").hasClass("show-ratings")) { 
+            if ($("#pictures").hasClass("show-ratings")) {
                 $("#pictures").removeClass("show-ratings");
                 $("#pictures").addClass("no-ratings");
             }
@@ -257,7 +256,7 @@ $(document).ready(function () {
                 $("#pictures").addClass("show-ratings");
                 $("#pictures").removeClass("no-ratings");
             }
-            });
+        });
     }
     let toggler = new RatingsToggler();
 
@@ -298,7 +297,6 @@ $(document).ready(function () {
         $("#pictures").on("click", ".favorite", function () {
             let newFavorite = $(this).attr("data-url");
             let favTitle = $(this).attr("title");
-            console.log(newFavorite);
 
             if (!self.favoritesStorage.isStoredAlready([newFavorite, favTitle])) {
                 self.createFavoriteImage(newFavorite, favTitle);
@@ -309,9 +307,7 @@ $(document).ready(function () {
 
     FavoritesGIFS.prototype.listenForFavoriteClicked = function () {
 
-        this.favoritesContainer .on("click", "img", function () {
-
-            console.log($(this).attr("src"));
+        this.favoritesContainer.on("click", "img", function () {
 
             let imgContainer = $("body");
             let img = $("<img>");

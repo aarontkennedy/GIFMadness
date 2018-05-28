@@ -42,6 +42,21 @@ figure figcaption {
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
+figure.loading::after {
+    display:block;
+    background-image: url("../images/loading.gif");
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left:-40px;
+    width:80px;
+    margin-top:-40px;
+    height:80px;
+    max-width:100%;
+    max-height:100%;
+    content: "";
+}
+
 #showRatingsLink {
     margin: .25em;
 }
@@ -64,6 +79,7 @@ figure figcaption {
     display: inline-block;
     width:75px;
     margin: .25em;
+    cursor: pointer;
 }
 
 img.takeOverScreen {
@@ -74,6 +90,7 @@ img.takeOverScreen {
     width:60%;
     padding: .5em;
     background-color: white;
+    cursor: pointer;
 }
 
 .show-ratings .rating {
